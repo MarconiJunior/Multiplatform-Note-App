@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NoteApp</string>
+    <string name="add_note">Adicionar nota</string>
+    <string name="note_delete_confirmation_question">Você tem certeza de que deseja deletar a nota?</string>
+    <string name="note_delete_confirmation_yes">Sim</string>
+    <string name="note_delete_confirmation_no">Não</string>
+    <string name="delete_note">Deletar nota</string>
+    <string name="your_note">Suas notas</string>
+    <string name="dark_mode">Modo Escuro</string>
+    <string name="light_mode">Modo Claro</string>
+    <string name="system_default">Padrão do sistema</string>
+    <string name="select_color">Selecione a cor</string>
+    <string name="notes">Notas</string>
+    <string name="couldn_t_save_note">Não foi possível salvar a nota</string>
+    <string name="enter_title">Digite o título…</string>
+    <string name="enter_some_content">Digite algum conteúdo</string>
+    <string name="order_descending">Descendente</string>
+    <string name="order_ascending">Ascendente</string>
+    <string name="order_color">Cor</string>
+    <string name="order_date">Data</string>
+    <string name="order_title">Título</string>
+    <string name="note_deleted">Nota deletada</string>
+</resources>
