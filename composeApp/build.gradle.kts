@@ -13,6 +13,8 @@ plugins {
 }
 
 kotlin {
+    tasks.create("testClasses")
+
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
@@ -54,11 +56,19 @@ kotlin {
             implementation(libs.serialization)
             implementation(libs.datetime)
             implementation(libs.compose.colorpicker)
+            implementation(libs.datastore)
+            implementation(libs.datastore.preferences)
+            implementation(libs.icon.extended)
 
             api(libs.datastore.preferences)
             api(libs.datastore)
         }
     }
+
+}
+
+compose.resources {
+    generateResClass = always
 }
 
 android {

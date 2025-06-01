@@ -23,6 +23,7 @@ datastore = "1.1.1"
 serialization = "1.8.0"
 datetime = "0.3.1"
 colorpicker = "1.1.2"
+compose_icon = "1.7.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -48,6 +49,7 @@ datastore-preferences = { module = "androidx.datastore:datastore-preferences", v
 serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
 datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "datetime" }
 compose-colorpicker = { module = "com.github.skydoves:colorpicker-compose", version.ref = "colorpicker" }
+icon-extended = { module = "org.jetbrains.compose.material:material-icons-core", version.ref = "compose_icon" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
