@@ -16,9 +16,3 @@ abstract class NoteDatabase: RoomDatabase() {
         const val DATABASE_NAME = "notes_db"
     }
 }
-
-@Suppress("NO_ACTUAL_FOR_EXPECT")
-expect object NoteDatabaseConstructor : RoomDatabaseConstructor<NoteDatabase> {
-    override fun initialize(): NoteDatabase
-}
-internal const val dbFileName = "notes.db"

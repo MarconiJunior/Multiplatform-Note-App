@@ -17,15 +17,14 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import noteapp.composeapp.generated.resources.Res
-import org.koin.compose.koinInject
+import noteapp.composeapp.generated.resources.*
 
-class AddEditNoteViewModel @Inject constructor(
-
+class AddEditNoteViewModel(
+    private val noteUseCases: NoteUseCases,
+    private val commonEvents: CommonEvents,
+    private val snackbarController: SnackbarController,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val noteUseCases: NoteUseCases = koinInject()
-    private val commonEvents: CommonEvents = koinInject()
-    private val snackbarController: SnackbarController = koinInject()
 
     private val _noteTitle = mutableStateOf(
         NoteTextFieldState(
@@ -36,7 +35,7 @@ class AddEditNoteViewModel @Inject constructor(
 
     private val _noteContent = mutableStateOf(
         NoteTextFieldState(
-            hint = R.string.enter_some_content
+            hint = Res.string.enter_some_content
         )
     )
     val noteContent: State<NoteTextFieldState> = _noteContent
@@ -165,8 +164,8 @@ class AddEditNoteViewModel @Inject constructor(
         )
     }
 
-    fun setSelectedCustomColor(hsvColor: HsvColor) {
-        _selectedCustomColor.value = hsvColor.toColor()
+    fun setSelectedCustomColor(color: Color) {
+        _selectedCustomColor.value = color
     }
 
     fun toggleColorDialogVisibility() {

@@ -1,6 +1,7 @@
 package com.marconi.note.data.data_source
 
 import androidx.room.*
+import com.marconi.note.domain.model.Note
 import kotlinx.coroutines.flow.Flow
 
 @Dao
