@@ -20,6 +20,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Colorize
+import androidx.compose.material.icons.filled.FormatColorFill
+import androidx.compose.material.icons.filled.FormatColorText
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -51,7 +54,10 @@ import com.marconi.note.presentation.add_edit_note.components.TransparentHintTex
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import noteapp.composeapp.generated.resources.Res
+import noteapp.composeapp.generated.resources.font_color
+import noteapp.composeapp.generated.resources.font_size
 import noteapp.composeapp.generated.resources.select_color
+import noteapp.composeapp.generated.resources.text_settings
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -160,7 +166,7 @@ fun AddEditNoteScreen(
                 onClick = viewModel::toggleColorDialogVisibility,
                 icon = {
                     Icon(
-                        imageVector = Icons.Filled.Person,
+                        imageVector = Icons.Filled.FormatColorFill,
                         contentDescription = stringResource(Res.string.select_color),
                         modifier = Modifier
                             .align(Alignment.Center),
@@ -174,7 +180,7 @@ fun AddEditNoteScreen(
                 onClick = viewModel::toggleFontDialogVisibility,
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Person,
+                    imageVector = Icons.Filled.FormatColorText,
                     contentDescription = stringResource(Res.string.select_color),
                     modifier = Modifier
                         .align(Alignment.Center),
@@ -241,7 +247,7 @@ fun TextSettingsDialog(
                 .padding(16.dp)
         ) {
             Text(
-                text = "Text Settings",
+                text = stringResource(Res.string.text_settings),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onBackground
             )
@@ -249,7 +255,7 @@ fun TextSettingsDialog(
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = "Font Size",
+                text = stringResource(Res.string.font_size),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onBackground
             )
@@ -265,7 +271,7 @@ fun TextSettingsDialog(
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = "Font Color",
+                text = stringResource(Res.string.font_color),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onBackground
             )

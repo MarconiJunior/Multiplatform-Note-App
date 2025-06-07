@@ -10,7 +10,10 @@
     <string name="dark_mode">Modo Escuro</string>
     <string name="light_mode">Modo Claro</string>
     <string name="system_default">Padrão do sistema</string>
-    <string name="select_color">Selecione a cor</string>
+    <string name="select_color">Selecione a cor da nota</string>
+    <string name="text_settings">Configurações de texto</string>
+    <string name="font_size">Tamanho da fonte</string>
+    <string name="font_color">Cor da fonte</string>"
     <string name="notes">Notas</string>
     <string name="couldn_t_save_note">Não foi possível salvar a nota</string>
     <string name="enter_title">Digite o título…</string>
