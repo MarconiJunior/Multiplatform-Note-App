@@ -1,15 +1,15 @@
 package com.marconi.note.presentation.main
 
-import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.MailOutline
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -129,7 +129,7 @@ fun MainScreen(
                                             false -> Icons.Default.LightMode
                                             null -> Icons.Default.Settings
                                         },
-                                        contentDescription = stringResource(R.string.change_theme)
+                                        contentDescription = null
                                     )
                                 }
 

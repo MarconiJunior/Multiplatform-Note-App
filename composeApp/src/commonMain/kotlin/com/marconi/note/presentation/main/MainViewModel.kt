@@ -1,17 +1,14 @@
 package com.marconi.note.presentation.main
 
-import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.marconi.note.presentation.util.ThemeManager
-import com.marconi.note.snackbar_utils.SnackbarController
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class MainViewModel(
-    private val themeManager: ThemeManager,
-    private val snackbarController: SnackbarController
+    private val themeManager: ThemeManager
 ) : ViewModel() {
     private val _inDarkMode = MutableStateFlow<Boolean?>(false)
     val inDarkMode: StateFlow<Boolean?> = _inDarkMode
