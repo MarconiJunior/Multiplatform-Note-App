@@ -10,7 +10,7 @@ import com.marconi.note.domain.util.NoteOrder
 import com.marconi.note.snackbar_utils.SnackbarAction
 import com.marconi.note.snackbar_utils.SnackbarController
 import com.marconi.note.snackbar_utils.SnackbarEvent
-import com.marconi.noteapp.domain.util.OrderType
+import com.marconi.note.domain.util.OrderType
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

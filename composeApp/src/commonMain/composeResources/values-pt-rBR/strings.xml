@@ -20,7 +20,7 @@
     <string name="enter_some_content">Digite algum conteúdo</string>
     <string name="order_descending">Descendente</string>
     <string name="order_ascending">Ascendente</string>
-    <string name="order_color">Cor</string>
+    <string name="order_text_size">Tamanho do texto</string>
     <string name="order_date">Data</string>
     <string name="order_title">Título</string>
     <string name="note_deleted">Nota deletada</string>

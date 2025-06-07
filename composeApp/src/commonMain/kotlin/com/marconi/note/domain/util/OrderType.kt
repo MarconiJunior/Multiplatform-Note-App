@@ -1,4 +1,4 @@
-package com.marconi.noteapp.domain.util
+package com.marconi.note.domain.util
 
 sealed class OrderType {
     data object Ascending: OrderType()

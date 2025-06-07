@@ -10,10 +10,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.marconi.note.domain.util.NoteOrder
-import com.marconi.noteapp.domain.util.OrderType
+import com.marconi.note.domain.util.OrderType
 import noteapp.composeapp.generated.resources.Res
 import noteapp.composeapp.generated.resources.order_ascending
-import noteapp.composeapp.generated.resources.order_color
+import noteapp.composeapp.generated.resources.order_text_size
 import noteapp.composeapp.generated.resources.order_date
 import noteapp.composeapp.generated.resources.order_descending
 import noteapp.composeapp.generated.resources.order_title
@@ -48,9 +48,9 @@ fun OrderSection(
             Spacer(modifier = Modifier.width(8.dp))
 
             DefaultRadioButton(
-                text = stringResource(Res.string.order_color),
-                selected = noteOrder is NoteOrder.Color,
-                onSelect = { onOrderChange(NoteOrder.Color(noteOrder.orderType)) }
+                text = stringResource(Res.string.order_text_size),
+                selected = noteOrder is NoteOrder.TextSize,
+                onSelect = { onOrderChange(NoteOrder.TextSize(noteOrder.orderType)) }
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
