@@ -61,6 +61,7 @@ kotlin {
             implementation(libs.datastore)
             implementation(libs.datastore.preferences)
             implementation(libs.icon.extended)
+            implementation(libs.androidx.core.ktx)
 
             api(libs.datastore.preferences)
             api(libs.datastore)
