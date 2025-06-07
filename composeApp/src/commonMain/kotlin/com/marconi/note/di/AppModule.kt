@@ -1,5 +1,6 @@
 package com.marconi.note.di
 
+import com.marconi.note.data.data_source.NoteDatabase
 import com.marconi.note.data.data_source.getNoteDatabase
 import com.marconi.note.data.repository.NoteRepositoryImpl
 import com.marconi.note.domain.repository.DeleteNote
@@ -12,6 +13,7 @@ import com.marconi.note.events.CommonEvents
 import com.marconi.note.presentation.add_edit_note.AddEditNoteViewModel
 import com.marconi.note.presentation.main.MainViewModel
 import com.marconi.note.presentation.notes.NotesViewModel
+import com.marconi.note.presentation.util.ThemeManager
 import com.marconi.note.snackbar_utils.SnackbarController
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
@@ -23,6 +25,8 @@ expect val targetModule: Module
 
 val appModule = module {
     single { getNoteDatabase(get()) }
+
+    single { get<NoteDatabase>().noteDao() }
 
     single<NoteRepository> {
         NoteRepositoryImpl(get())
@@ -36,6 +40,8 @@ val appModule = module {
             getNote = GetNote(get())
         )
     }
+
+    single { ThemeManager(get()) }
 
     single<CommonEvents> {
         CommonEvents()
