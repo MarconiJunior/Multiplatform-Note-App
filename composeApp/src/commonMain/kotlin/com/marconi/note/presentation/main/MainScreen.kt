@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.MailOutline
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -105,7 +106,7 @@ fun MainScreen(
                                     ?.contains(Screen.AddEditNoteScreen.route) == false
                             ) {
                                 Icons.Default.Add
-                            } else Icons.Default.MailOutline,
+                            } else Icons.Default.Save,
                             contentDescription = stringResource(Res.string.add_note)
                         )
                     }
