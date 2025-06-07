@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
+import com.github.skydoves.colorpicker.compose.ColorPickerController
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import com.marconi.note.domain.model.Note
@@ -57,6 +58,7 @@ import noteapp.composeapp.generated.resources.Res
 import noteapp.composeapp.generated.resources.font_color
 import noteapp.composeapp.generated.resources.font_size
 import noteapp.composeapp.generated.resources.select_color
+import noteapp.composeapp.generated.resources.selected_color
 import noteapp.composeapp.generated.resources.text_settings
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -260,13 +262,16 @@ fun TextSettingsDialog(
                 color = MaterialTheme.colorScheme.onBackground
             )
 
-            Slider(
-                value = initialFontSize,
-                onValueChange = onFontSizeChange,
-                valueRange = 12f..36f,
-                steps = 24,
-                modifier = Modifier.fillMaxWidth()
-            )
+            Column {
+                Slider(
+                    value = initialFontSize,
+                    onValueChange = onFontSizeChange,
+                    valueRange = 12f..36f,
+                    steps = 24,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Text(text = initialFontSize.toString())
+            }
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -276,15 +281,12 @@ fun TextSettingsDialog(
                 color = MaterialTheme.colorScheme.onBackground
             )
 
-            HsvColorPicker(
+            HsvColorPickerWithFeed(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp),
-                initialColor = initialFontColor,
-                onColorChanged = { colorEnvelope ->
-                    onFontColorChange(colorEnvelope.color)
-                },
-                drawDefaultWheelIndicator = true,
+                onColorChanged = onFontColorChange,
+                color = initialFontColor,
                 controller = controller
             )
         }
@@ -344,16 +346,55 @@ fun ColorPickerDialog(
                 color = MaterialTheme.colorScheme.onBackground
             )
 
-            HsvColorPicker(
+            HsvColorPickerWithFeed(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp),
-                initialColor = color,
-                onColorChanged = { colorEnvelope ->
-                    onColorChanged(colorEnvelope.color)
-                },
-                drawDefaultWheelIndicator = true,
+                onColorChanged = onColorChanged,
+                color = color,
                 controller = controller
+            )
+        }
+    }
+}
+
+@Composable
+fun HsvColorPickerWithFeed(
+    modifier: Modifier = Modifier,
+    onColorChanged: (Color) -> Unit,
+    color: Color,
+    controller: ColorPickerController
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(20.dp)
+    ) {
+        HsvColorPicker(
+            modifier = modifier,
+            initialColor = color,
+            onColorChanged = { colorEnvelope ->
+                onColorChanged(colorEnvelope.color)
+            },
+            drawDefaultWheelIndicator = true,
+            controller = controller
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                stringResource(Res.string.selected_color)
+            )
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(color = color, shape = RoundedCornerShape(4.dp))
+                    .border(
+                        1.dp,
+                        MaterialTheme.colorScheme.onBackground,
+                        shape = RoundedCornerShape(4.dp)
+                    )
             )
         }
     }

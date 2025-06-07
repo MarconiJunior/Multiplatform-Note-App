@@ -25,4 +25,5 @@
     <string name="order_date">Date</string>
     <string name="order_title">Title</string>
     <string name="note_deleted">Note deleted</string>
+    <string name="selected_color">Selected color:</string>
 </resources>
