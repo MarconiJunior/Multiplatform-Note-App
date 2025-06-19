@@ -34,8 +34,8 @@ jobs:
 
       - name: Update versionCode and versionName in build.gradle.kts
         run: |
-          sed -i "s/versionCode = [0-9]\+/versionCode = $VERSION_CODE/" app/build.gradle.kts
-          sed -i "s/versionName = \".*\"/versionName = \"$VERSION_NAME\"/" app/build.gradle.kts
+          sed -i "s/versionCode = [0-9]\+/versionCode = $VERSION_CODE/" composeApp/build.gradle.kts
+          sed -i "s/versionName = \".*\"/versionName = \"$VERSION_NAME\"/" composeApp/build.gradle.kts
         env:
           VERSION_CODE: ${{ env.VERSION_CODE }}
           VERSION_NAME: ${{ env.VERSION_NAME }}
@@ -52,4 +52,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: kipi-release-aab
-          path: app/build/outputs/bundle/release/app-release.aab
+          path: composeApp/build/outputs/bundle/release/app-release.aab
