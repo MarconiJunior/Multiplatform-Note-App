@@ -59,6 +59,7 @@ import noteapp.composeapp.generated.resources.selected_color
 import noteapp.composeapp.generated.resources.text_settings
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.math.roundToInt
 
 @Composable
 fun AddEditNoteScreen(
@@ -268,7 +269,7 @@ fun TextSettingsDialog(
                     steps = 24,
                     modifier = Modifier.fillMaxWidth()
                 )
-                Text(text = initialFontSize.toString())
+                Text(text = ((initialFontSize * 100).roundToInt() / 100.0).toString())
             }
 
             Spacer(modifier = Modifier.height(20.dp))
