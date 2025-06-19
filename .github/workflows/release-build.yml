@@ -43,7 +43,7 @@ jobs:
       - name: Build Release AAB
         run: ./gradlew bundleRelease --no-daemon
         env:
-          RELEASE_STORE_FILE: kipi-keystore.jks
+          RELEASE_STORE_FILE: ${{ secrets.RELEASE_STORE_FILE }}
           RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
           RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
