@@ -25,7 +25,7 @@ kotlin {
         iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
-            baseName = "ComposeApp"
+            baseName = "Kipi"
             isStatic = true
         }
     }
@@ -72,11 +72,11 @@ compose.resources {
 }
 
 android {
-    namespace = "com.marconi.note"
+    namespace = "com.marconi.kipi"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.marconi.note"
+        applicationId = "com.marconi.kipi"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
