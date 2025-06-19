@@ -1,5 +1,3 @@
-import com.android.tools.build.bundletool.commands.DebugKeystoreUtils.DEBUG_KEY_PASSWORD
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -20,7 +18,7 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -31,7 +29,7 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     sourceSets {
 
         androidMain.dependencies {
