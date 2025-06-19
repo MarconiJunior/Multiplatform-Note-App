@@ -84,13 +84,13 @@ android {
     }
     signingConfigs {
         create("release") {
-            storeFile = file(System.getenv("RELEASE_STORE_FILE") ?: "kipi-release-keystore.jks")
+            storeFile = rootProject.file(System.getenv("RELEASE_STORE_FILE") ?: "kipi-release-keystore.jks")
             storePassword = System.getenv("RELEASE_STORE_PASSWORD")
             keyAlias = System.getenv("RELEASE_KEY_ALIAS")
             keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
         }
         getByName("debug") {
-            storeFile = file("kipi-debug-keystore.jks")
+            storeFile = rootProject.file("kipi-debug-keystore.jks")
             storePassword = "123456"
             keyAlias = "kipi-debug-keystore"
             keyPassword = "123456"
