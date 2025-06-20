@@ -1,4 +1,4 @@
-rootProject.name = "NoteApp"
+rootProject.name = "Kipi"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
