@@ -28,8 +28,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.marconi.kipi.domain.model.Note
-import noteapp.composeapp.generated.resources.Res
-import noteapp.composeapp.generated.resources.delete_note
+import kipi.composeapp.generated.resources.Res
+import kipi.composeapp.generated.resources.delete_note
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

@@ -16,8 +16,8 @@ import com.marconi.kipi.snackbar_utils.SnackbarEvent
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import noteapp.composeapp.generated.resources.Res
-import noteapp.composeapp.generated.resources.*
+import kipi.composeapp.generated.resources.Res
+import kipi.composeapp.generated.resources.*
 
 class AddEditNoteViewModel(
     private val noteUseCases: NoteUseCases,

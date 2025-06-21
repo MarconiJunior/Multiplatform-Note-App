@@ -35,12 +35,12 @@ import androidx.navigation.NavController
 import com.marconi.kipi.presentation.notes.components.NoteItem
 import com.marconi.kipi.presentation.notes.components.OrderSection
 import com.marconi.kipi.presentation.util.Screen
-import noteapp.composeapp.generated.resources.Res
-import noteapp.composeapp.generated.resources.delete_note
-import noteapp.composeapp.generated.resources.note_delete_confirmation_no
-import noteapp.composeapp.generated.resources.note_delete_confirmation_question
-import noteapp.composeapp.generated.resources.note_delete_confirmation_yes
-import noteapp.composeapp.generated.resources.your_note
+import kipi.composeapp.generated.resources.Res
+import kipi.composeapp.generated.resources.delete_note
+import kipi.composeapp.generated.resources.note_delete_confirmation_no
+import kipi.composeapp.generated.resources.note_delete_confirmation_question
+import kipi.composeapp.generated.resources.note_delete_confirmation_yes
+import kipi.composeapp.generated.resources.your_note
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 

@@ -25,4 +25,7 @@
     <string name="order_title">Título</string>
     <string name="note_deleted">Nota deletada</string>
     <string name="selected_color">Cor selecionada:</string>
+
+    <string name="app_updated_error">Erro ao instalar a nova versão do Kipi. Tente novamente.</string>
+    <string name="app_updated_successfully">Uma nova versão do Kipi foi instalada com sucesso. Reiniciando app...</string>
 </resources>

@@ -17,8 +17,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import noteapp.composeapp.generated.resources.Res
-import noteapp.composeapp.generated.resources.note_deleted
+import kipi.composeapp.generated.resources.Res
+import kipi.composeapp.generated.resources.note_deleted
 
 class NotesViewModel(
     private val noteUseCases: NoteUseCases,
