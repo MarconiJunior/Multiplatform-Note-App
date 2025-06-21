@@ -35,7 +35,8 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
-
+            implementation(libs.android.app.update)
+            implementation(libs.android.app.update.ktx)
             implementation(libs.koin.android)
         }
         commonMain.dependencies {
