@@ -16,21 +16,32 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FormatColorFill
 import androidx.compose.material.icons.filled.FormatColorText
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,14 +60,18 @@ import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import com.marconi.kipi.domain.model.Note
 import com.marconi.kipi.presentation.add_edit_note.components.TransparentHintTextField
+import com.marconi.kipi.ui.theme.FontTypes
+import com.marconi.kipi.ui.theme.getFontFamily
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import noteapp.composeapp.generated.resources.Res
-import noteapp.composeapp.generated.resources.font_color
-import noteapp.composeapp.generated.resources.font_size
-import noteapp.composeapp.generated.resources.select_color
-import noteapp.composeapp.generated.resources.selected_color
-import noteapp.composeapp.generated.resources.text_settings
+import kipi.composeapp.generated.resources.Res
+import kipi.composeapp.generated.resources.black_label
+import kipi.composeapp.generated.resources.font_color
+import kipi.composeapp.generated.resources.font_family
+import kipi.composeapp.generated.resources.font_size
+import kipi.composeapp.generated.resources.select_color
+import kipi.composeapp.generated.resources.selected_color
+import kipi.composeapp.generated.resources.text_settings
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.math.roundToInt
@@ -74,6 +89,9 @@ fun AddEditNoteScreen(
     val textColor by viewModel.textColor.collectAsState(Color.Black.toArgb())
     val isDialogVisible by viewModel.isColorDialogVisible.collectAsState(false)
     val isTextDialogVisible by viewModel.isFontDialogVisible.collectAsState(false)
+    val fontFamily by viewModel.fontFamily.collectAsState()
+    val colorExpanded by viewModel.colorExpanded.collectAsState()
+    val noteDefaultColors by viewModel.defaultColors.collectAsState()
 
     val noteBackgroundAnimatable = remember {
         Animatable(
@@ -120,46 +138,83 @@ fun AddEditNoteScreen(
             onDismissRequest = viewModel::toggleFontDialogVisibility,
             initialFontColor = Color(textColor),
             initialFontSize = fontSize,
+            initialFontFamily = fontFamily,
             onFontSizeChange = {
                 viewModel.onEvent(AddEditNoteEvent.ChangeFontSize(it))
             },
             onFontColorChange = {
                 viewModel.onEvent(AddEditNoteEvent.ChangeTextColor(it.toArgb()))
+            },
+            onFontFamilyChange = {
+                viewModel.onEvent(AddEditNoteEvent.ChangeFontFamily(it))
             }
         )
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(.9f)
-            .background(noteBackgroundAnimatable.value, RoundedCornerShape(10.dp))
-            .padding(10.dp)
-    ) {
+    Column {
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Note.noteColors.forEach { color ->
-                val colorInt = color.toArgb()
+            Box {
                 ColorCircle(
-                    color,
-                    borderColor = if (viewModel.noteColor.value == colorInt) {
-                        MaterialTheme.colorScheme.primary
-                    } else Color.Transparent,
-                    onClick = {
-                        scope.launch {
-                            noteBackgroundAnimatable.animateTo(
-                                targetValue = Color(colorInt),
-                                animationSpec = tween(
-                                    durationMillis = 500
-                                )
-                            )
-                        }
-                        viewModel.onEvent(AddEditNoteEvent.ChangeColor(colorInt))
+                    Color(viewModel.noteColor.value),
+                    borderColor = MaterialTheme.colorScheme.primary,
+                    onClick = { viewModel.setColorExpanded(true) }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.KeyboardArrowDown,
+                        contentDescription = stringResource(Res.string.select_color),
+                        modifier = Modifier.align(Alignment.Center),
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+                DropdownMenu(
+                    expanded = colorExpanded,
+                    onDismissRequest = { viewModel.setColorExpanded(false) },
+                ) {
+                    noteDefaultColors.forEach { color ->
+                        DropdownMenuItem(
+                            onClick = {
+                                scope.launch {
+                                    viewModel.onEvent(AddEditNoteEvent.ChangeColor(color.toArgb()))
+                                    viewModel.setColorExpanded(false)
+                                    noteBackgroundAnimatable.animateTo(
+                                        targetValue = color,
+                                        animationSpec = tween(
+                                            durationMillis = 500
+                                        )
+                                    )
+                                }
+                            },
+                            text = {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(24.dp)
+                                            .background(color, shape = CircleShape)
+                                            .border(
+                                                1.dp,
+                                                Color.Black.copy(alpha = 0.2f),
+                                                CircleShape
+                                            )
+                                    )
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Text(
+                                        text = "#${
+                                            color.toArgb().toUInt().toString(16).uppercase()
+                                                .padStart(8, '0')
+                                        }",
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+                            }
+                        )
                     }
-                )
+                }
             }
             ColorCircle(
                 selectedCustomColor ?: MaterialTheme.colorScheme.primary,
@@ -190,42 +245,51 @@ fun AddEditNoteScreen(
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
-        TransparentHintTextField(
-            text = titleState.text,
-            hint = titleState.hint?.let { stringResource(it) } ?: "",
-            onValueChange = {
-                viewModel.onEvent(AddEditNoteEvent.EnteredTitle(it))
-            },
-            onFocusChange = {
-                viewModel.onEvent(AddEditNoteEvent.ChangeTitleFocus(it))
-            },
-            isHintVisible = titleState.isHintVisible,
-            singleLine = true,
-            textStyle = TextStyle(
-                fontSize = fontSize.sp,
-                color = Color(textColor),
-                fontWeight = FontWeight.Bold
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(.9f)
+                .background(noteBackgroundAnimatable.value, RoundedCornerShape(10.dp))
+                .padding(10.dp)
+        ) {
+            TransparentHintTextField(
+                text = titleState.text,
+                hint = titleState.hint?.let { stringResource(it) } ?: "",
+                onValueChange = {
+                    viewModel.onEvent(AddEditNoteEvent.EnteredTitle(it))
+                },
+                onFocusChange = {
+                    viewModel.onEvent(AddEditNoteEvent.ChangeTitleFocus(it))
+                },
+                isHintVisible = titleState.isHintVisible,
+                singleLine = true,
+                textStyle = TextStyle(
+                    fontSize = fontSize.sp,
+                    color = Color(textColor),
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = getFontFamily(fontFamily)
+                )
             )
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        TransparentHintTextField(
-            text = contentState.text,
-            hint = contentState.hint?.let { stringResource(it) } ?: "",
-            onValueChange = {
-                viewModel.onEvent(AddEditNoteEvent.EnteredContent(it))
-            },
-            onFocusChange = {
-                viewModel.onEvent(AddEditNoteEvent.ChangeContentFocus(it))
-            },
-            isHintVisible = contentState.isHintVisible,
-            textStyle = TextStyle(
-                fontSize = fontSize.sp,
-                color = Color(textColor),
-                fontWeight = FontWeight.Normal,
-
+            Spacer(modifier = Modifier.height(16.dp))
+            TransparentHintTextField(
+                text = contentState.text,
+                hint = contentState.hint?.let { stringResource(it) } ?: "",
+                onValueChange = {
+                    viewModel.onEvent(AddEditNoteEvent.EnteredContent(it))
+                },
+                onFocusChange = {
+                    viewModel.onEvent(AddEditNoteEvent.ChangeContentFocus(it))
+                },
+                isHintVisible = contentState.isHintVisible,
+                textStyle = TextStyle(
+                    fontSize = fontSize.sp,
+                    color = Color(textColor),
+                    fontWeight = FontWeight.Normal,
+                    fontFamily = getFontFamily(fontFamily)
                 ),
-            modifier = Modifier.fillMaxHeight()
-        )
+                modifier = Modifier.fillMaxHeight()
+            )
+        }
     }
 }
 
@@ -234,9 +298,14 @@ fun TextSettingsDialog(
     onDismissRequest: () -> Unit,
     onFontSizeChange: (Float) -> Unit,
     onFontColorChange: (Color) -> Unit,
+    onFontFamilyChange: (FontTypes) -> Unit,
     initialFontSize: Float,
-    initialFontColor: Color
+    initialFontColor: Color,
+    initialFontFamily: FontTypes
 ) {
+    val fontOptions = FontTypes.entries.toList()
+    var expanded by remember { mutableStateOf(false) }
+    var selectedFont by remember { mutableStateOf(initialFontFamily) }
     val controller = rememberColorPickerController()
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -251,6 +320,18 @@ fun TextSettingsDialog(
                 text = stringResource(Res.string.text_settings),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onBackground
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            ComboInput(
+                items = fontOptions,
+                selected = selectedFont,
+                onSelectedChange = {
+                    selectedFont = it
+                    onFontFamilyChange(it)
+                },
+                label = stringResource(Res.string.font_family)
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -291,6 +372,61 @@ fun TextSettingsDialog(
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ComboInput(
+    modifier: Modifier = Modifier,
+    items: List<FontTypes>,
+    selected: FontTypes,
+    onSelectedChange: (FontTypes) -> Unit,
+    label: String = "",
+) {
+    var expanded by remember { mutableStateOf(false) }
+    var text by remember { mutableStateOf(selected.value) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+        modifier = modifier
+    ) {
+        OutlinedTextField(
+            value = text,
+            onValueChange = {
+            },
+            label = { Text(label) },
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            },
+            readOnly = true,
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth()
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            items.forEach { item ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            item.value,
+                            fontFamily = getFontFamily(item)
+                        )
+                    },
+                    onClick = {
+                        text = item.value
+                        onSelectedChange(item)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
 
 @Composable
 fun ColorCircle(
@@ -385,16 +521,42 @@ fun HsvColorPickerWithFeed(
             Text(
                 stringResource(Res.string.selected_color)
             )
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(color = color, shape = RoundedCornerShape(4.dp))
-                    .border(
-                        1.dp,
-                        MaterialTheme.colorScheme.onBackground,
-                        shape = RoundedCornerShape(4.dp)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Preview da cor atual
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(color = color, shape = RoundedCornerShape(4.dp))
+                        .border(
+                            1.dp,
+                            MaterialTheme.colorScheme.onBackground,
+                            shape = RoundedCornerShape(4.dp)
+                        )
+                )
+
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(Color.Black)
+                        .border(
+                            1.dp,
+                            MaterialTheme.colorScheme.onBackground,
+                            shape = RoundedCornerShape(4.dp)
+                        )
+                        .clickable { onColorChanged(Color.Black) },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(Res.string.black_label),
+                        color = Color.White,
+                        fontSize = 12.sp
                     )
-            )
+                }
+            }
         }
     }
 }

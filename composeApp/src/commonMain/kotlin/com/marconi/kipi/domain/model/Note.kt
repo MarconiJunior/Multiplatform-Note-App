@@ -14,6 +14,7 @@ data class Note(
     val color: Int,
     val textColor: Int,
     val fontSize: Float,
+    val fontStyle: String?,
     @PrimaryKey val id: Int? = null
 ) {
     companion object {

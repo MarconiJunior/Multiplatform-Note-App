@@ -17,4 +17,7 @@ interface NoteDao {
 
     @Delete
     suspend fun deleteNote(note: Note)
+
+    @Query("SELECT color FROM note")
+    suspend fun getNotesColors(): List<Int>
 }

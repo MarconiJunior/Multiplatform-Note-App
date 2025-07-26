@@ -11,12 +11,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.marconi.kipi.domain.util.NoteOrder
 import com.marconi.kipi.domain.util.OrderType
-import noteapp.composeapp.generated.resources.Res
-import noteapp.composeapp.generated.resources.order_ascending
-import noteapp.composeapp.generated.resources.order_text_size
-import noteapp.composeapp.generated.resources.order_date
-import noteapp.composeapp.generated.resources.order_descending
-import noteapp.composeapp.generated.resources.order_title
+import kipi.composeapp.generated.resources.Res
+import kipi.composeapp.generated.resources.order_ascending
+import kipi.composeapp.generated.resources.order_text_size
+import kipi.composeapp.generated.resources.order_date
+import kipi.composeapp.generated.resources.order_descending
+import kipi.composeapp.generated.resources.order_title
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

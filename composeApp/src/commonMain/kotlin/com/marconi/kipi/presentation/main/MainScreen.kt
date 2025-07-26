@@ -43,12 +43,12 @@ import com.marconi.kipi.presentation.add_edit_note.AddEditNoteScreen
 import com.marconi.kipi.presentation.notes.NotesScreen
 import com.marconi.kipi.presentation.util.Screen
 import com.marconi.kipi.ui.theme.NoteAppTheme
-import noteapp.composeapp.generated.resources.Res
-import noteapp.composeapp.generated.resources.add_note
-import noteapp.composeapp.generated.resources.dark_mode
-import noteapp.composeapp.generated.resources.light_mode
-import noteapp.composeapp.generated.resources.notes
-import noteapp.composeapp.generated.resources.system_default
+import kipi.composeapp.generated.resources.Res
+import kipi.composeapp.generated.resources.add_note
+import kipi.composeapp.generated.resources.dark_mode
+import kipi.composeapp.generated.resources.light_mode
+import kipi.composeapp.generated.resources.notes
+import kipi.composeapp.generated.resources.system_default
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 

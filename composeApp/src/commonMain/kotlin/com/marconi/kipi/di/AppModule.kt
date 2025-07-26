@@ -8,6 +8,7 @@ import com.marconi.kipi.domain.repository.NoteRepository
 import com.marconi.kipi.domain.use_case.AddNote
 import com.marconi.kipi.domain.use_case.GetNote
 import com.marconi.kipi.domain.use_case.GetNotes
+import com.marconi.kipi.domain.use_case.GetNotesColors
 import com.marconi.kipi.domain.use_case.NoteUseCases
 import com.marconi.kipi.events.CommonEvents
 import com.marconi.kipi.presentation.add_edit_note.AddEditNoteViewModel
@@ -37,7 +38,8 @@ val appModule = module {
             getNotes = GetNotes(get()),
             deleteNote = DeleteNote(get()),
             addNote = AddNote(get()),
-            getNote = GetNote(get())
+            getNote = GetNote(get()),
+            getNotesColors = GetNotesColors(get())
         )
     }
 
