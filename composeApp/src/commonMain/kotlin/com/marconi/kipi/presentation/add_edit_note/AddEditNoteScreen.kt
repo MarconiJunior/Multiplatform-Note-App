@@ -59,6 +59,7 @@ import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import com.marconi.kipi.domain.model.Note
 import com.marconi.kipi.presentation.add_edit_note.components.TransparentHintTextField
+import com.marconi.kipi.ui.theme.FontTypes
 import com.marconi.kipi.ui.theme.getFontFamily
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -247,18 +248,17 @@ fun AddEditNoteScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TextSettingsDialog(
     onDismissRequest: () -> Unit,
     onFontSizeChange: (Float) -> Unit,
     onFontColorChange: (Color) -> Unit,
-    onFontFamilyChange: (String) -> Unit,
+    onFontFamilyChange: (FontTypes) -> Unit,
     initialFontSize: Float,
     initialFontColor: Color,
-    initialFontFamily: String
+    initialFontFamily: FontTypes
 ) {
-    val fontOptions = listOf("Domine", "Inter", "Playfair Display", "Roboto")
+    val fontOptions = FontTypes.entries.toList()
     var expanded by remember { mutableStateOf(false) }
     var selectedFont by remember { mutableStateOf(initialFontFamily) }
     val controller = rememberColorPickerController()
@@ -332,13 +332,13 @@ fun TextSettingsDialog(
 @Composable
 fun ComboInput(
     modifier: Modifier = Modifier,
-    items: List<String>,
-    selected: String,
-    onSelectedChange: (String) -> Unit,
+    items: List<FontTypes>,
+    selected: FontTypes,
+    onSelectedChange: (FontTypes) -> Unit,
     label: String = "",
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var text by remember { mutableStateOf(selected) }
+    var text by remember { mutableStateOf(selected.value) }
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -366,12 +366,12 @@ fun ComboInput(
                 DropdownMenuItem(
                     text = {
                         Text(
-                            item,
+                            item.value,
                             fontFamily = getFontFamily(item)
                         )
                     },
                     onClick = {
-                        text = item
+                        text = item.value
                         onSelectedChange(item)
                         expanded = false
                     }

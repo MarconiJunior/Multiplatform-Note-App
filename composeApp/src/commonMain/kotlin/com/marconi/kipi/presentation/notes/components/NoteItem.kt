@@ -28,6 +28,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.marconi.kipi.domain.model.Note
+import com.marconi.kipi.ui.theme.FontTypes
+import com.marconi.kipi.ui.theme.getFontFamily
 import kipi.composeapp.generated.resources.Res
 import kipi.composeapp.generated.resources.delete_note
 import org.jetbrains.compose.resources.stringResource
@@ -76,12 +78,14 @@ fun NoteItem(
                 .padding(16.dp)
                 .padding(end = 32.dp)
         ) {
+            val fontEnum = FontTypes.entries.find { it.value == note.fontStyle } ?: FontTypes.Domine
             Text(
                 text = note.title,
                 style = TextStyle(
                     fontSize = note.fontSize.sp,
                     color = Color(note.textColor),
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = getFontFamily(fontEnum)
                 ),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis

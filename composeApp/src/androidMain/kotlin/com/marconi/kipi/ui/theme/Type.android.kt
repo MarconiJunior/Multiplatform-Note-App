@@ -4,10 +4,10 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import com.marconi.kipi.R
 
-actual fun getFontFamily(name: String): FontFamily = when(name) {
-    "Domine" -> FontFamily(Font(R.font.domine))
-    "Inter" -> FontFamily(Font(R.font.inter))
-    "Playfair Display" -> FontFamily(Font(R.font.playfair_display))
-    "Roboto" -> FontFamily(Font(R.font.roboto))
+actual fun getFontFamily(name: FontTypes): FontFamily = when(name) {
+    FontTypes.Domine -> FontFamily(Font(R.font.domine))
+    FontTypes.Inter -> FontFamily(Font(R.font.inter))
+    FontTypes.PlayfairDisplay -> FontFamily(Font(R.font.playfair_display))
+    FontTypes.Roboto -> FontFamily(Font(R.font.roboto))
     else -> FontFamily.Default
 }

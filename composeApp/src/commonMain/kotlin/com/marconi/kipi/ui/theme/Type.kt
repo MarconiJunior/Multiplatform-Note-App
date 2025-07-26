@@ -5,4 +5,4 @@ import androidx.compose.ui.text.font.FontFamily
 
 val AppTypography = Typography()
 
-expect fun getFontFamily(name: String): FontFamily
+expect fun getFontFamily(name: FontTypes): FontFamily
