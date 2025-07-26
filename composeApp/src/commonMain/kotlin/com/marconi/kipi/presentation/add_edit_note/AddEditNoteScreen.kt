@@ -21,16 +21,26 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FormatColorFill
 import androidx.compose.material.icons.filled.FormatColorText
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,10 +59,12 @@ import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import com.marconi.kipi.domain.model.Note
 import com.marconi.kipi.presentation.add_edit_note.components.TransparentHintTextField
+import com.marconi.kipi.ui.theme.getFontFamily
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kipi.composeapp.generated.resources.Res
 import kipi.composeapp.generated.resources.font_color
+import kipi.composeapp.generated.resources.font_family
 import kipi.composeapp.generated.resources.font_size
 import kipi.composeapp.generated.resources.select_color
 import kipi.composeapp.generated.resources.selected_color
@@ -74,6 +86,7 @@ fun AddEditNoteScreen(
     val textColor by viewModel.textColor.collectAsState(Color.Black.toArgb())
     val isDialogVisible by viewModel.isColorDialogVisible.collectAsState(false)
     val isTextDialogVisible by viewModel.isFontDialogVisible.collectAsState(false)
+    val fontFamily by viewModel.fontFamily.collectAsState()
 
     val noteBackgroundAnimatable = remember {
         Animatable(
@@ -120,11 +133,15 @@ fun AddEditNoteScreen(
             onDismissRequest = viewModel::toggleFontDialogVisibility,
             initialFontColor = Color(textColor),
             initialFontSize = fontSize,
+            initialFontFamily = fontFamily,
             onFontSizeChange = {
                 viewModel.onEvent(AddEditNoteEvent.ChangeFontSize(it))
             },
             onFontColorChange = {
                 viewModel.onEvent(AddEditNoteEvent.ChangeTextColor(it.toArgb()))
+            },
+            onFontFamilyChange = {
+                viewModel.onEvent(AddEditNoteEvent.ChangeFontFamily(it))
             }
         )
     }
@@ -204,7 +221,8 @@ fun AddEditNoteScreen(
             textStyle = TextStyle(
                 fontSize = fontSize.sp,
                 color = Color(textColor),
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                fontFamily = getFontFamily(fontFamily)
             )
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -222,21 +240,27 @@ fun AddEditNoteScreen(
                 fontSize = fontSize.sp,
                 color = Color(textColor),
                 fontWeight = FontWeight.Normal,
-
-                ),
+                fontFamily = getFontFamily(fontFamily)
+            ),
             modifier = Modifier.fillMaxHeight()
         )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TextSettingsDialog(
     onDismissRequest: () -> Unit,
     onFontSizeChange: (Float) -> Unit,
     onFontColorChange: (Color) -> Unit,
+    onFontFamilyChange: (String) -> Unit,
     initialFontSize: Float,
-    initialFontColor: Color
+    initialFontColor: Color,
+    initialFontFamily: String
 ) {
+    val fontOptions = listOf("Domine", "Inter", "Playfair Display", "Roboto")
+    var expanded by remember { mutableStateOf(false) }
+    var selectedFont by remember { mutableStateOf(initialFontFamily) }
     val controller = rememberColorPickerController()
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -251,6 +275,18 @@ fun TextSettingsDialog(
                 text = stringResource(Res.string.text_settings),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onBackground
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            ComboInput(
+                items = fontOptions,
+                selected = selectedFont,
+                onSelectedChange = {
+                    selectedFont = it
+                    onFontFamilyChange(it)
+                },
+                label = stringResource(Res.string.font_family)
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -291,6 +327,60 @@ fun TextSettingsDialog(
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ComboInput(
+    modifier: Modifier = Modifier,
+    items: List<String>,
+    selected: String,
+    onSelectedChange: (String) -> Unit,
+    label: String = "",
+) {
+    var expanded by remember { mutableStateOf(false) }
+    var text by remember { mutableStateOf(selected) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+        modifier = modifier
+    ) {
+        OutlinedTextField(
+            value = text,
+            onValueChange = {
+            },
+            label = { Text(label) },
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            },
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth()
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            items.forEach { item ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            item,
+                            fontFamily = getFontFamily(item)
+                        )
+                    },
+                    onClick = {
+                        text = item
+                        onSelectedChange(item)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
 
 @Composable
 fun ColorCircle(

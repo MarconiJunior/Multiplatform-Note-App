@@ -58,6 +58,9 @@ class AddEditNoteViewModel(
     private val _textColor = MutableStateFlow(Color.Black.toArgb())
     val textColor: StateFlow<Int> = _textColor
 
+    private val _fontFamily = MutableStateFlow("Domine")
+    val fontFamily: StateFlow<String> = _fontFamily
+
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow: SharedFlow<UiEvent> = _eventFlow.asSharedFlow()
 
@@ -121,6 +124,9 @@ class AddEditNoteViewModel(
             is AddEditNoteEvent.ChangeTextColor -> {
                 _textColor.value = event.textColor
             }
+            is AddEditNoteEvent.ChangeFontFamily -> {
+                _fontFamily.value = event.fontFamily
+            }
             is AddEditNoteEvent.SaveNote -> {
                 viewModelScope.launch {
                     try {
@@ -132,6 +138,7 @@ class AddEditNoteViewModel(
                                 color = noteColor.value,
                                 textColor = textColor.value,
                                 fontSize = fontSize.value,
+                                fontStyle = fontFamily.value,
                                 id = currentNoteId
                             )
                         )

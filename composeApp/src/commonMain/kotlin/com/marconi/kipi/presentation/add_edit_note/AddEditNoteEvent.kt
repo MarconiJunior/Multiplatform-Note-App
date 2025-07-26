@@ -10,5 +10,6 @@ sealed class AddEditNoteEvent {
     data class ChangeColor(val color: Int): AddEditNoteEvent()
     data class ChangeFontSize(val fontSize: Float): AddEditNoteEvent()
     data class ChangeTextColor(val textColor: Int): AddEditNoteEvent()
+    data class ChangeFontFamily(val fontFamily: String): AddEditNoteEvent()
     data object SaveNote: AddEditNoteEvent()
 }

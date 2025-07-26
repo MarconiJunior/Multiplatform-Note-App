@@ -13,6 +13,7 @@
     <string name="select_color">Selecione a cor da nota</string>
     <string name="text_settings">Configurações de texto</string>
     <string name="font_size">Tamanho da fonte</string>
+    <string name="font_family">Família de fonte</string>
     <string name="font_color">Cor da fonte</string>"
     <string name="notes">Notas</string>
     <string name="couldn_t_save_note">Não foi possível salvar a nota</string>

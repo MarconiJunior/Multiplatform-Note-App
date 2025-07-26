@@ -14,7 +14,8 @@
     <string name="select_color">Select color of note</string>
     <string name="text_settings">Text settings</string>
     <string name="font_size">Font size</string>
-    <string name="font_color">Font color</string>"
+    <string name="font_color">Font color</string>
+    <string name="font_family">Font family</string>
     <string name="notes">Notes</string>
     <string name="couldn_t_save_note">Couldn\'t save note</string>
     <string name="enter_title">Enter title…</string>
