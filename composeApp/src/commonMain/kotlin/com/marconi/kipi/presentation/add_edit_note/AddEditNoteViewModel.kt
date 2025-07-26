@@ -85,6 +85,12 @@ class AddEditNoteViewModel(
                         )
                         onEvent(AddEditNoteEvent.ChangeColor(note.color))
                         onEvent(AddEditNoteEvent.ChangeFontSize(note.fontSize))
+                        onEvent(
+                            AddEditNoteEvent.ChangeFontFamily(
+                                FontTypes.entries
+                                    .find { it.value == note.fontStyle } ?: FontTypes.Domine
+                            )
+                        )
                         onEvent(AddEditNoteEvent.ChangeTextColor(note.textColor))
                     }
                 }

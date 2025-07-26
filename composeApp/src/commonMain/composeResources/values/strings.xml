@@ -27,6 +27,7 @@
     <string name="order_title">Title</string>
     <string name="note_deleted">Note deleted</string>
     <string name="selected_color">Selected color:</string>
+    <string name="black_label">Black</string>
 
     <string name="app_updated_successfully">Kipi new version installed successfully. Restarting app...</string>
     <string name="app_updated_error">Kipi new version installation failed. Please try again.</string>

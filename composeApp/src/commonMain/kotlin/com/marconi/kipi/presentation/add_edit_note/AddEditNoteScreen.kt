@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -64,6 +65,7 @@ import com.marconi.kipi.ui.theme.getFontFamily
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kipi.composeapp.generated.resources.Res
+import kipi.composeapp.generated.resources.black_label
 import kipi.composeapp.generated.resources.font_color
 import kipi.composeapp.generated.resources.font_family
 import kipi.composeapp.generated.resources.font_size
@@ -353,6 +355,7 @@ fun ComboInput(
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
+            readOnly = true,
             modifier = Modifier
                 .menuAnchor()
                 .fillMaxWidth()
@@ -475,16 +478,42 @@ fun HsvColorPickerWithFeed(
             Text(
                 stringResource(Res.string.selected_color)
             )
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(color = color, shape = RoundedCornerShape(4.dp))
-                    .border(
-                        1.dp,
-                        MaterialTheme.colorScheme.onBackground,
-                        shape = RoundedCornerShape(4.dp)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Preview da cor atual
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(color = color, shape = RoundedCornerShape(4.dp))
+                        .border(
+                            1.dp,
+                            MaterialTheme.colorScheme.onBackground,
+                            shape = RoundedCornerShape(4.dp)
+                        )
+                )
+
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(Color.Black)
+                        .border(
+                            1.dp,
+                            MaterialTheme.colorScheme.onBackground,
+                            shape = RoundedCornerShape(4.dp)
+                        )
+                        .clickable { onColorChanged(Color.Black) },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(Res.string.black_label),
+                        color = Color.White,
+                        fontSize = 12.sp
                     )
-            )
+                }
+            }
         }
     }
 }
