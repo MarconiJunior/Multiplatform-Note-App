@@ -90,6 +90,8 @@ fun AddEditNoteScreen(
     val isDialogVisible by viewModel.isColorDialogVisible.collectAsState(false)
     val isTextDialogVisible by viewModel.isFontDialogVisible.collectAsState(false)
     val fontFamily by viewModel.fontFamily.collectAsState()
+    val colorExpanded by viewModel.colorExpanded.collectAsState()
+    val noteDefaultColors by viewModel.defaultColors.collectAsState()
 
     val noteBackgroundAnimatable = remember {
         Animatable(
@@ -149,37 +151,70 @@ fun AddEditNoteScreen(
         )
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(.9f)
-            .background(noteBackgroundAnimatable.value, RoundedCornerShape(10.dp))
-            .padding(10.dp)
-    ) {
+    Column {
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Note.noteColors.forEach { color ->
-                val colorInt = color.toArgb()
+            Box {
                 ColorCircle(
-                    color,
-                    borderColor = if (viewModel.noteColor.value == colorInt) {
-                        MaterialTheme.colorScheme.primary
-                    } else Color.Transparent,
-                    onClick = {
-                        scope.launch {
-                            noteBackgroundAnimatable.animateTo(
-                                targetValue = Color(colorInt),
-                                animationSpec = tween(
-                                    durationMillis = 500
-                                )
-                            )
-                        }
-                        viewModel.onEvent(AddEditNoteEvent.ChangeColor(colorInt))
+                    Color(viewModel.noteColor.value),
+                    borderColor = MaterialTheme.colorScheme.primary,
+                    onClick = { viewModel.setColorExpanded(true) }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.KeyboardArrowDown,
+                        contentDescription = stringResource(Res.string.select_color),
+                        modifier = Modifier.align(Alignment.Center),
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+                DropdownMenu(
+                    expanded = colorExpanded,
+                    onDismissRequest = { viewModel.setColorExpanded(false) },
+                ) {
+                    noteDefaultColors.forEach { color ->
+                        DropdownMenuItem(
+                            onClick = {
+                                scope.launch {
+                                    viewModel.onEvent(AddEditNoteEvent.ChangeColor(color.toArgb()))
+                                    viewModel.setColorExpanded(false)
+                                    noteBackgroundAnimatable.animateTo(
+                                        targetValue = color,
+                                        animationSpec = tween(
+                                            durationMillis = 500
+                                        )
+                                    )
+                                }
+                            },
+                            text = {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(24.dp)
+                                            .background(color, shape = CircleShape)
+                                            .border(
+                                                1.dp,
+                                                Color.Black.copy(alpha = 0.2f),
+                                                CircleShape
+                                            )
+                                    )
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Text(
+                                        text = "#${
+                                            color.toArgb().toUInt().toString(16).uppercase()
+                                                .padStart(8, '0')
+                                        }",
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+                            }
+                        )
                     }
-                )
+                }
             }
             ColorCircle(
                 selectedCustomColor ?: MaterialTheme.colorScheme.primary,
@@ -210,43 +245,51 @@ fun AddEditNoteScreen(
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
-        TransparentHintTextField(
-            text = titleState.text,
-            hint = titleState.hint?.let { stringResource(it) } ?: "",
-            onValueChange = {
-                viewModel.onEvent(AddEditNoteEvent.EnteredTitle(it))
-            },
-            onFocusChange = {
-                viewModel.onEvent(AddEditNoteEvent.ChangeTitleFocus(it))
-            },
-            isHintVisible = titleState.isHintVisible,
-            singleLine = true,
-            textStyle = TextStyle(
-                fontSize = fontSize.sp,
-                color = Color(textColor),
-                fontWeight = FontWeight.Bold,
-                fontFamily = getFontFamily(fontFamily)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(.9f)
+                .background(noteBackgroundAnimatable.value, RoundedCornerShape(10.dp))
+                .padding(10.dp)
+        ) {
+            TransparentHintTextField(
+                text = titleState.text,
+                hint = titleState.hint?.let { stringResource(it) } ?: "",
+                onValueChange = {
+                    viewModel.onEvent(AddEditNoteEvent.EnteredTitle(it))
+                },
+                onFocusChange = {
+                    viewModel.onEvent(AddEditNoteEvent.ChangeTitleFocus(it))
+                },
+                isHintVisible = titleState.isHintVisible,
+                singleLine = true,
+                textStyle = TextStyle(
+                    fontSize = fontSize.sp,
+                    color = Color(textColor),
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = getFontFamily(fontFamily)
+                )
             )
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        TransparentHintTextField(
-            text = contentState.text,
-            hint = contentState.hint?.let { stringResource(it) } ?: "",
-            onValueChange = {
-                viewModel.onEvent(AddEditNoteEvent.EnteredContent(it))
-            },
-            onFocusChange = {
-                viewModel.onEvent(AddEditNoteEvent.ChangeContentFocus(it))
-            },
-            isHintVisible = contentState.isHintVisible,
-            textStyle = TextStyle(
-                fontSize = fontSize.sp,
-                color = Color(textColor),
-                fontWeight = FontWeight.Normal,
-                fontFamily = getFontFamily(fontFamily)
-            ),
-            modifier = Modifier.fillMaxHeight()
-        )
+            Spacer(modifier = Modifier.height(16.dp))
+            TransparentHintTextField(
+                text = contentState.text,
+                hint = contentState.hint?.let { stringResource(it) } ?: "",
+                onValueChange = {
+                    viewModel.onEvent(AddEditNoteEvent.EnteredContent(it))
+                },
+                onFocusChange = {
+                    viewModel.onEvent(AddEditNoteEvent.ChangeContentFocus(it))
+                },
+                isHintVisible = contentState.isHintVisible,
+                textStyle = TextStyle(
+                    fontSize = fontSize.sp,
+                    color = Color(textColor),
+                    fontWeight = FontWeight.Normal,
+                    fontFamily = getFontFamily(fontFamily)
+                ),
+                modifier = Modifier.fillMaxHeight()
+            )
+        }
     }
 }
 

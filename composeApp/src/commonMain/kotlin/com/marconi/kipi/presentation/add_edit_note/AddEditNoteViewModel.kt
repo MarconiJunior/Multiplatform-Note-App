@@ -26,7 +26,6 @@ class AddEditNoteViewModel(
     private val snackbarController: SnackbarController,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-
     private val _noteTitle = mutableStateOf(
         NoteTextFieldState(
             hint = Res.string.enter_title
@@ -53,6 +52,9 @@ class AddEditNoteViewModel(
     private val _noteColor = MutableStateFlow(Note.noteColors.random().toArgb())
     val noteColor: StateFlow<Int> = _noteColor
 
+    private val _defaultColors = MutableStateFlow(emptyList<Color>())
+    val defaultColors: StateFlow<List<Color>> = _defaultColors
+
     private val _fontSize = MutableStateFlow(16f)
     val fontSize: StateFlow<Float> = _fontSize
 
@@ -62,11 +64,13 @@ class AddEditNoteViewModel(
     private val _fontFamily = MutableStateFlow(FontTypes.Domine)
     val fontFamily: StateFlow<FontTypes> = _fontFamily
 
+    private val _colorExpanded = MutableStateFlow(false)
+    val colorExpanded: StateFlow<Boolean> = _colorExpanded
+
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow: SharedFlow<UiEvent> = _eventFlow.asSharedFlow()
 
     private var currentNoteId: Int? = null
-
 
     init {
         saveNote()
@@ -96,6 +100,7 @@ class AddEditNoteViewModel(
                 }
             }
         }
+        setDefaultNoteColors()
     }
 
     fun onEvent(event: AddEditNoteEvent) {
@@ -162,6 +167,14 @@ class AddEditNoteViewModel(
         data object SaveNote: UiEvent()
     }
 
+    private fun setDefaultNoteColors() {
+        viewModelScope.launch {
+            val noteColors = noteUseCases.getNotesColors()
+            Note.noteColors
+            _defaultColors.emit(Note.noteColors + noteColors.map { Color(it) })
+        }
+    }
+
     private fun saveNote() {
         viewModelScope.launch {
             commonEvents.emitEvent(CommonEvents.Event.SaveNote {
@@ -176,6 +189,10 @@ class AddEditNoteViewModel(
                 message = message ?: Res.string.couldn_t_save_note
             )
         )
+    }
+
+    fun setColorExpanded(expanded: Boolean) {
+        _colorExpanded.value = expanded
     }
 
     fun setSelectedCustomColor(color: Color) {
