@@ -96,7 +96,8 @@ fun NoteItem(
                 style = TextStyle(
                     fontSize = note.fontSize.sp,
                     color = Color(note.textColor),
-                    fontWeight = FontWeight.Normal
+                    fontWeight = FontWeight.Normal,
+                    fontFamily = getFontFamily(fontEnum)
                 ),
                 maxLines = 10,
                 overflow = TextOverflow.Ellipsis
@@ -124,4 +125,3 @@ fun blendARGB(color1: Int, color2: Int, ratio: Float): Int {
 
     return (a shl 24) or (r shl 16) or (g shl 8) or b
 }
-
