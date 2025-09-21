@@ -7,6 +7,7 @@
     <string name="note_delete_confirmation_no">Não</string>
     <string name="delete_note">Deletar nota</string>
     <string name="your_note">Suas notas</string>
+    <string name="all_notes">Todas as notas</string>
     <string name="dark_mode">Modo Escuro</string>
     <string name="light_mode">Modo Claro</string>
     <string name="system_default">Padrão do sistema</string>
@@ -27,6 +28,11 @@
     <string name="note_deleted">Nota deletada</string>
     <string name="selected_color">Cor selecionada:</string>
     <string name="black_label">Preto</string>
+
+    <plurals name="notes_length">
+        <item quantity="one">%1$d nota</item>
+        <item quantity="other">%1$d notas</item>
+    </plurals>
 
     <string name="app_updated_error">Erro ao instalar a nova versão do Kipi. Tente novamente.</string>
     <string name="app_updated_successfully">Uma nova versão do Kipi foi instalada com sucesso. Reiniciando app...</string>
