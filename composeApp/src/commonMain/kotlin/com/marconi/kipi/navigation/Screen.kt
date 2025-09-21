@@ -1,4 +1,4 @@
-package com.marconi.kipi.presentation.util
+package com.marconi.kipi.navigation
 
 sealed class Screen(val route: String) {
     data object NotesScreen: Screen("notes_screen")

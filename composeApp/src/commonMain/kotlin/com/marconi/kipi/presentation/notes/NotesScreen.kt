@@ -33,11 +33,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.pluralStringResource
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import androidx.navigation.NavController
 import com.marconi.kipi.presentation.notes.components.NoteItem
 import com.marconi.kipi.presentation.notes.components.OrderSection
-import com.marconi.kipi.presentation.util.Screen
+import com.marconi.kipi.navigation.Screen
 import kipi.composeapp.generated.resources.Res
 import kipi.composeapp.generated.resources.all_notes
 import kipi.composeapp.generated.resources.delete_note

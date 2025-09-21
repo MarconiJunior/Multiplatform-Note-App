@@ -13,9 +13,6 @@ class MainViewModel(
     private val _inDarkMode = MutableStateFlow<Boolean?>(false)
     val inDarkMode: StateFlow<Boolean?> = _inDarkMode
 
-    private val _saveNoteCallback = MutableStateFlow {}
-    val saveNoteCallback: StateFlow<() -> Unit> = _saveNoteCallback
-
     init {
         viewModelScope.launch {
             themeManager.themeFlow.collect { theme ->
@@ -27,16 +24,6 @@ class MainViewModel(
     fun setDarkMode(inDarkMode: Boolean?) {
         viewModelScope.launch {
             themeManager.setDarkThemeEnabled(inDarkMode)
-        }
-    }
-
-    fun setSaveNoteCallback(callback: () -> Unit) {
-        _saveNoteCallback.value = callback
-    }
-
-    fun saveNote() {
-        viewModelScope.launch {
-            saveNoteCallback.value.invoke()
         }
     }
 }

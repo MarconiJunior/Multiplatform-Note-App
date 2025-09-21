@@ -1,9 +1,12 @@
 package com.marconi.kipi.presentation.add_edit_note
 
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,6 +14,7 @@ import com.marconi.kipi.domain.model.InvalidNoteException
 import com.marconi.kipi.domain.model.Note
 import com.marconi.kipi.domain.use_case.NoteUseCases
 import com.marconi.kipi.events.CommonEvents
+import com.marconi.kipi.navigation.Navigator
 import com.marconi.kipi.snackbar_utils.SnackbarController
 import com.marconi.kipi.snackbar_utils.SnackbarEvent
 import com.marconi.kipi.ui.theme.FontTypes
@@ -19,13 +23,28 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kipi.composeapp.generated.resources.Res
 import kipi.composeapp.generated.resources.*
+data class NoteUiState(
+    val title: String = "",
+    val content: String = "",
+    val backgroundColor: Color = Color.White,
+    val textColor: Color = Color.Black,
+    val fontSize: Int = 16,
+    val isBold: Boolean = false,
+    val isItalic: Boolean = false,
+    val isUnderlined: Boolean = false,
+    val textAlign: TextAlign = TextAlign.Start,
+    val isLoading: Boolean = false
+)
 
 class AddEditNoteViewModel(
     private val noteUseCases: NoteUseCases,
-    private val commonEvents: CommonEvents,
     private val snackbarController: SnackbarController,
+    private val navigator: Navigator,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+    var uiState by mutableStateOf(NoteUiState())
+        private set
+
     private val _noteTitle = mutableStateOf(
         NoteTextFieldState(
             hint = Res.string.enter_title
@@ -73,7 +92,6 @@ class AddEditNoteViewModel(
     private var currentNoteId: Int? = null
 
     init {
-        saveNote()
         savedStateHandle.get<Int>("noteId")?.let { noteId ->
             if(noteId != -1) {
                 viewModelScope.launch {
@@ -101,6 +119,42 @@ class AddEditNoteViewModel(
             }
         }
         setDefaultNoteColors()
+    }
+
+    fun updateTitle(title: String) {
+        uiState = uiState.copy(title = title)
+    }
+
+    fun updateContent(content: String) {
+        uiState = uiState.copy(content = content)
+    }
+
+    fun updateBackgroundColor(color: Color) {
+        uiState = uiState.copy(backgroundColor = color)
+    }
+
+    fun updateTextColor(color: Color) {
+        uiState = uiState.copy(textColor = color)
+    }
+
+    fun updateFontSize(size: Int) {
+        uiState = uiState.copy(fontSize = size)
+    }
+
+    fun toggleBold() {
+        uiState = uiState.copy(isBold = !uiState.isBold)
+    }
+
+    fun toggleItalic() {
+        uiState = uiState.copy(isItalic = !uiState.isItalic)
+    }
+
+    fun toggleUnderline() {
+        uiState = uiState.copy(isUnderlined = !uiState.isUnderlined)
+    }
+
+    fun updateTextAlign(align: TextAlign) {
+        uiState = uiState.copy(textAlign = align)
     }
 
     fun onEvent(event: AddEditNoteEvent) {
@@ -154,7 +208,7 @@ class AddEditNoteViewModel(
                                 id = currentNoteId
                             )
                         )
-                        _eventFlow.emit(UiEvent.SaveNote)
+                        navigator.navigateUp()
                     } catch(e: InvalidNoteException) {
                         emmitSnackbar(e.message)
                     }
@@ -172,14 +226,6 @@ class AddEditNoteViewModel(
             val noteColors = noteUseCases.getNotesColors()
             Note.noteColors
             _defaultColors.emit(Note.noteColors + noteColors.map { Color(it) })
-        }
-    }
-
-    private fun saveNote() {
-        viewModelScope.launch {
-            commonEvents.emitEvent(CommonEvents.Event.SaveNote {
-                onEvent(AddEditNoteEvent.SaveNote)
-            })
         }
     }
 

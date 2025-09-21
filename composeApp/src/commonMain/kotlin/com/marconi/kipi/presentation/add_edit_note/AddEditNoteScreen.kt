@@ -26,15 +26,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FormatColorFill
 import androidx.compose.material.icons.filled.FormatColorText
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -61,7 +63,7 @@ import androidx.navigation.NavController
 import com.github.skydoves.colorpicker.compose.ColorPickerController
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
-import com.marconi.kipi.domain.model.Note
+import com.marconi.kipi.presentation.add_edit_note.components.FormattingToolbar
 import com.marconi.kipi.presentation.add_edit_note.components.TransparentHintTextField
 import com.marconi.kipi.ui.theme.FontTypes
 import com.marconi.kipi.ui.theme.getFontFamily
@@ -95,6 +97,8 @@ fun AddEditNoteScreen(
     val fontFamily by viewModel.fontFamily.collectAsState()
     val colorExpanded by viewModel.colorExpanded.collectAsState()
     val noteDefaultColors by viewModel.defaultColors.collectAsState()
+
+    val uiState = viewModel.uiState
 
     val noteBackgroundAnimatable = remember {
         Animatable(
@@ -154,150 +158,186 @@ fun AddEditNoteScreen(
         )
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Box {
-                ColorCircle(
-                    Color(viewModel.noteColor.value),
-                    borderColor = MaterialTheme.colorScheme.primary,
-                    onClick = { viewModel.setColorExpanded(true) }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.KeyboardArrowDown,
-                        contentDescription = stringResource(Res.string.select_color),
-                        modifier = Modifier.align(Alignment.Center),
-                        tint = MaterialTheme.colorScheme.onPrimary
-                    )
-                }
-                DropdownMenu(
-                    expanded = colorExpanded,
-                    onDismissRequest = { viewModel.setColorExpanded(false) },
-                ) {
-                    noteDefaultColors.forEach { color ->
-                        DropdownMenuItem(
-                            onClick = {
-                                scope.launch {
-                                    viewModel.onEvent(AddEditNoteEvent.ChangeColor(color.toArgb()))
-                                    viewModel.setColorExpanded(false)
-                                    noteBackgroundAnimatable.animateTo(
-                                        targetValue = color,
-                                        animationSpec = tween(
-                                            durationMillis = 500
-                                        )
-                                    )
-                                }
-                            },
-                            text = {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(24.dp)
-                                            .background(color, shape = CircleShape)
-                                            .border(
-                                                1.dp,
-                                                Color.Black.copy(alpha = 0.2f),
-                                                CircleShape
-                                            )
-                                    )
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    Text(
-                                        text = "#${
-                                            color.toArgb().toUInt().toString(16).uppercase()
-                                                .padStart(8, '0')
-                                        }",
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                }
-                            }
+    Scaffold(
+        topBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Box {
+                    ColorCircle(
+                        Color(viewModel.noteColor.value),
+                        borderColor = MaterialTheme.colorScheme.primary,
+                        onClick = { viewModel.setColorExpanded(true) }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.KeyboardArrowDown,
+                            contentDescription = stringResource(Res.string.select_color),
+                            modifier = Modifier.align(Alignment.Center),
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
+                    DropdownMenu(
+                        expanded = colorExpanded,
+                        onDismissRequest = { viewModel.setColorExpanded(false) },
+                    ) {
+                        noteDefaultColors.forEach { color ->
+                            DropdownMenuItem(
+                                onClick = {
+                                    scope.launch {
+                                        viewModel.onEvent(AddEditNoteEvent.ChangeColor(color.toArgb()))
+                                        viewModel.setColorExpanded(false)
+                                        noteBackgroundAnimatable.animateTo(
+                                            targetValue = color,
+                                            animationSpec = tween(
+                                                durationMillis = 500
+                                            )
+                                        )
+                                    }
+                                },
+                                text = {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(24.dp)
+                                                .background(color, shape = CircleShape)
+                                                .border(
+                                                    1.dp,
+                                                    Color.Black.copy(alpha = 0.2f),
+                                                    CircleShape
+                                                )
+                                        )
+                                        Spacer(modifier = Modifier.width(12.dp))
+                                        Text(
+                                            text = "#${
+                                                color.toArgb().toUInt().toString(16).uppercase()
+                                                    .padStart(8, '0')
+                                            }",
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    }
                 }
-            }
-            ColorCircle(
-                selectedCustomColor ?: MaterialTheme.colorScheme.primary,
-                borderColor = MaterialTheme.colorScheme.inversePrimary,
-                onClick = viewModel::toggleColorDialogVisibility,
-                icon = {
+                ColorCircle(
+                    selectedCustomColor ?: MaterialTheme.colorScheme.primary,
+                    borderColor = MaterialTheme.colorScheme.inversePrimary,
+                    onClick = viewModel::toggleColorDialogVisibility,
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Filled.FormatColorFill,
+                            contentDescription = stringResource(Res.string.select_color),
+                            modifier = Modifier
+                                .align(Alignment.Center),
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                )
+                ColorCircle(
+                    MaterialTheme.colorScheme.primary,
+                    borderColor = MaterialTheme.colorScheme.inversePrimary,
+                    onClick = viewModel::toggleFontDialogVisibility,
+                ) {
                     Icon(
-                        imageVector = Icons.Filled.FormatColorFill,
+                        imageVector = Icons.Filled.FormatColorText,
                         contentDescription = stringResource(Res.string.select_color),
                         modifier = Modifier
                             .align(Alignment.Center),
                         tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
+            }
+        },
+        bottomBar = {
+            FormattingToolbar(
+                isBold = uiState.isBold,
+                isItalic = uiState.isItalic,
+                isUnderlined = uiState.isUnderlined,
+                fontSize = uiState.fontSize,
+                textColor = uiState.textColor,
+                textAlign = uiState.textAlign,
+                onBoldToggle = viewModel::toggleBold,
+                onItalicToggle = viewModel::toggleItalic,
+                onUnderlineToggle = viewModel::toggleUnderline,
+                onFontSizeChange = viewModel::updateFontSize,
+                onTextColorChange = viewModel::updateTextColor,
+                onTextAlignChange = viewModel::updateTextAlign
             )
-            ColorCircle(
-                MaterialTheme.colorScheme.primary,
-                borderColor = MaterialTheme.colorScheme.inversePrimary,
-                onClick = viewModel::toggleFontDialogVisibility,
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    viewModel.onEvent(AddEditNoteEvent.SaveNote)
+                },
+                contentColor = MaterialTheme.colorScheme.primary
             ) {
                 Icon(
-                    imageVector = Icons.Filled.FormatColorText,
-                    contentDescription = stringResource(Res.string.select_color),
-                    modifier = Modifier
-                        .align(Alignment.Center),
-                    tint = MaterialTheme.colorScheme.onPrimary
+                    imageVector = Icons.Default.Save,
+                    contentDescription = null
                 )
             }
         }
-        Spacer(modifier = Modifier.height(16.dp))
+    ) { paddingValues ->
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .background(noteBackgroundAnimatable.value, RoundedCornerShape(10.dp))
-                .padding(10.dp)
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
         ) {
-            TransparentHintTextField(
-                text = titleState.text,
-                hint = titleState.hint?.let { stringResource(it) } ?: "",
-                onValueChange = {
-                    viewModel.onEvent(AddEditNoteEvent.EnteredTitle(it))
-                },
-                onFocusChange = {
-                    viewModel.onEvent(AddEditNoteEvent.ChangeTitleFocus(it))
-                },
-                isHintVisible = titleState.isHintVisible,
-                singleLine = true,
-                textStyle = TextStyle(
-                    fontSize = fontSize.sp,
-                    color = Color(textColor),
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = getFontFamily(fontFamily)
-                )
-            )
+
             Spacer(modifier = Modifier.height(16.dp))
-            TransparentHintTextField(
-                text = contentState.text,
-                hint = contentState.hint?.let { stringResource(it) } ?: "",
-                onValueChange = {
-                    viewModel.onEvent(AddEditNoteEvent.EnteredContent(it))
-                },
-                onFocusChange = {
-                    viewModel.onEvent(AddEditNoteEvent.ChangeContentFocus(it))
-                },
-                isHintVisible = contentState.isHintVisible,
-                textStyle = TextStyle(
-                    fontSize = fontSize.sp,
-                    color = Color(textColor),
-                    fontWeight = FontWeight.Normal,
-                    fontFamily = getFontFamily(fontFamily)
-                ),
-                modifier = Modifier.fillMaxHeight()
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .background(noteBackgroundAnimatable.value, RoundedCornerShape(10.dp))
+                    .padding(10.dp)
+            ) {
+                TransparentHintTextField(
+                    text = titleState.text,
+                    hint = titleState.hint?.let { stringResource(it) } ?: "",
+                    onValueChange = {
+                        viewModel.onEvent(AddEditNoteEvent.EnteredTitle(it))
+                    },
+                    onFocusChange = {
+                        viewModel.onEvent(AddEditNoteEvent.ChangeTitleFocus(it))
+                    },
+                    isHintVisible = titleState.isHintVisible,
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        fontSize = fontSize.sp,
+                        color = Color(textColor),
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = getFontFamily(fontFamily)
+                    )
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                TransparentHintTextField(
+                    text = contentState.text,
+                    hint = contentState.hint?.let { stringResource(it) } ?: "",
+                    onValueChange = {
+                        viewModel.onEvent(AddEditNoteEvent.EnteredContent(it))
+                    },
+                    onFocusChange = {
+                        viewModel.onEvent(AddEditNoteEvent.ChangeContentFocus(it))
+                    },
+                    isHintVisible = contentState.isHintVisible,
+                    textStyle = TextStyle(
+                        fontSize = fontSize.sp,
+                        color = Color(textColor),
+                        fontWeight = FontWeight.Normal,
+                        fontFamily = getFontFamily(fontFamily)
+                    ),
+                    modifier = Modifier.fillMaxHeight()
+                )
+            }
+            Spacer(modifier = Modifier.height(90.dp))
         }
-        Spacer(modifier = Modifier.height(90.dp))
     }
 }
 
@@ -434,7 +474,6 @@ fun ComboInput(
         }
     }
 }
-
 
 @Composable
 fun ColorCircle(

@@ -3,7 +3,6 @@ package com.marconi.kipi.presentation.main
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -22,10 +21,13 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.marconi.kipi.events.CommonEvents
 import com.marconi.kipi.events.utils.ObserveAsEvents
+import com.marconi.kipi.navigation.NavigationAction
+import com.marconi.kipi.navigation.Navigator
 import com.marconi.kipi.presentation.add_edit_note.AddEditNoteScreen
 import com.marconi.kipi.presentation.notes.NotesScreen
-import com.marconi.kipi.presentation.util.Screen
+import com.marconi.kipi.navigation.Screen
 import com.marconi.kipi.ui.theme.NoteAppTheme
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -35,16 +37,20 @@ fun MainScreen(
     snackbarHostState: SnackbarHostState
 ) {
     val navController = rememberNavController()
+    val navigator = koinInject<Navigator>()
+
     val inDarkMode by viewModel.inDarkMode.collectAsState()
     val currentRoute = navController.currentBackStackEntryAsState()
 
-    ObserveAsEvents(
-        flow = commonEvents.events
-    ) { event ->
-        when (event) {
-            is CommonEvents.Event.SaveNote -> {
-                viewModel.setSaveNoteCallback(event.saveNote)
+    ObserveAsEvents(flow = navigator.navigationActions) { action ->
+        when (action) {
+            is NavigationAction.Navigate -> navController.navigate(
+                action.destination?.route ?: Screen.NotesScreen
+            ) {
+                action.navOptions(this)
             }
+
+            NavigationAction.NavigateUp -> navController.navigateUp()
         }
     }
 

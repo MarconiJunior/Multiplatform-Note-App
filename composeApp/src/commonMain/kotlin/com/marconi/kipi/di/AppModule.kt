@@ -11,6 +11,9 @@ import com.marconi.kipi.domain.use_case.GetNotes
 import com.marconi.kipi.domain.use_case.GetNotesColors
 import com.marconi.kipi.domain.use_case.NoteUseCases
 import com.marconi.kipi.events.CommonEvents
+import com.marconi.kipi.navigation.DefaultNavigator
+import com.marconi.kipi.navigation.Navigator
+import com.marconi.kipi.navigation.Screen
 import com.marconi.kipi.presentation.add_edit_note.AddEditNoteViewModel
 import com.marconi.kipi.presentation.main.MainViewModel
 import com.marconi.kipi.presentation.notes.NotesViewModel
@@ -31,6 +34,10 @@ val appModule = module {
 
     single<NoteRepository> {
         NoteRepositoryImpl(get())
+    }
+
+    single<Navigator> {
+        DefaultNavigator(startDestination = Screen.NotesScreen)
     }
 
     single<NoteUseCases> {

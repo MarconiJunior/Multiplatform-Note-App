@@ -5,7 +5,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 
 class CommonEvents {
     sealed class Event {
-        data class SaveNote(val saveNote: () -> Unit) : Event()
     }
 
     private val _events = MutableSharedFlow<Event>()
