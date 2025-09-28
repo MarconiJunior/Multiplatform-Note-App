@@ -15,6 +15,7 @@ data class Note(
     val textColor: Int,
     val fontSize: Float,
     val fontStyle: String?,
+    val richTextStyles: String? = null, // JSON serializado dos StyleRange
     @PrimaryKey val id: Int? = null
 ) {
     companion object {

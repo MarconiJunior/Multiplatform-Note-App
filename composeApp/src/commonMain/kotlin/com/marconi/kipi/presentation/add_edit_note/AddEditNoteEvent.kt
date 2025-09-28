@@ -1,6 +1,8 @@
 package com.marconi.kipi.presentation.add_edit_note
 
 import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.text.TextRange
+import com.marconi.kipi.rich_text.styles.Style
 import com.marconi.kipi.ui.theme.FontTypes
 
 sealed class AddEditNoteEvent {
@@ -12,5 +14,6 @@ sealed class AddEditNoteEvent {
     data class ChangeFontSize(val fontSize: Float): AddEditNoteEvent()
     data class ChangeTextColor(val textColor: Int): AddEditNoteEvent()
     data class ChangeFontFamily(val fontFamily: FontTypes): AddEditNoteEvent()
+    data class ToggleStyle(val style: Style): AddEditNoteEvent()
     data object SaveNote: AddEditNoteEvent()
 }

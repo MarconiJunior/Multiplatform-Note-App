@@ -12,6 +12,6 @@ builder: RoomDatabase.Builder<NoteDatabase>
         .fallbackToDestructiveMigrationOnDowngrade(dropAllTables = true)
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
-        .addMigrations(NoteDatabase.MIGRATION_1_2)
+        .addMigrations(NoteDatabase.MIGRATION_1_2, NoteDatabase.MIGRATION_2_3)
         .build()
 }

@@ -9,7 +9,7 @@ import com.marconi.kipi.domain.model.Note
 
 @Database(
     entities = [Note::class],
-    version = 2,
+    version = 3,
 )
 abstract class NoteDatabase: RoomDatabase() {
     abstract fun noteDao(): NoteDao
@@ -20,6 +20,14 @@ abstract class NoteDatabase: RoomDatabase() {
             override fun migrate(connection: SQLiteConnection) {
                 connection.execSQL(
                     "ALTER TABLE note ADD COLUMN fontStyle TEXT"
+                )
+            }
+        }
+
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(connection: SQLiteConnection) {
+                connection.execSQL(
+                    "ALTER TABLE note ADD COLUMN richTextStyles TEXT"
                 )
             }
         }

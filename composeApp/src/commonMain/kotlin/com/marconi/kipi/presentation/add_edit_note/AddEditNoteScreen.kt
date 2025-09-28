@@ -40,7 +40,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,15 +58,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.navigation.NavController
 import com.github.skydoves.colorpicker.compose.ColorPickerController
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
-import com.marconi.kipi.presentation.add_edit_note.components.FormattingToolbar
+import com.marconi.kipi.presentation.add_edit_note.components.RichTextToolbar
+import com.marconi.kipi.presentation.add_edit_note.components.RichTextField
 import com.marconi.kipi.presentation.add_edit_note.components.TransparentHintTextField
 import com.marconi.kipi.ui.theme.FontTypes
 import com.marconi.kipi.ui.theme.getFontFamily
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kipi.composeapp.generated.resources.Res
 import kipi.composeapp.generated.resources.black_label
@@ -83,12 +81,12 @@ import kotlin.math.roundToInt
 
 @Composable
 fun AddEditNoteScreen(
-    navController: NavController,
     noteColor: Int,
 ) {
     val viewModel: AddEditNoteViewModel = koinViewModel()
     val titleState = viewModel.noteTitle.value
     val contentState = viewModel.noteContent.value
+    val uiState by viewModel.uiState.collectAsState()
     val selectedCustomColor by viewModel.selectedCustomColor.collectAsState()
     val fontSize by viewModel.fontSize.collectAsState(16f)
     val textColor by viewModel.textColor.collectAsState(Color.Black.toArgb())
@@ -97,8 +95,8 @@ fun AddEditNoteScreen(
     val fontFamily by viewModel.fontFamily.collectAsState()
     val colorExpanded by viewModel.colorExpanded.collectAsState()
     val noteDefaultColors by viewModel.defaultColors.collectAsState()
-
-    val uiState = viewModel.uiState
+    val hasSelection by viewModel.hasSelection.collectAsState()
+    val activeStyles by viewModel.activeStyles.collectAsState()
 
     val noteBackgroundAnimatable = remember {
         Animatable(
@@ -106,16 +104,6 @@ fun AddEditNoteScreen(
         )
     }
     val scope = rememberCoroutineScope()
-
-    LaunchedEffect(key1 = true) {
-        viewModel.eventFlow.collectLatest { event ->
-            when(event) {
-                is AddEditNoteViewModel.UiEvent.SaveNote -> {
-                    navController.navigateUp()
-                }
-            }
-        }
-    }
 
     if (isDialogVisible) {
         ColorPickerDialog(
@@ -254,19 +242,11 @@ fun AddEditNoteScreen(
             }
         },
         bottomBar = {
-            FormattingToolbar(
-                isBold = uiState.isBold,
-                isItalic = uiState.isItalic,
-                isUnderlined = uiState.isUnderlined,
-                fontSize = uiState.fontSize,
-                textColor = uiState.textColor,
-                textAlign = uiState.textAlign,
-                onBoldToggle = viewModel::toggleBold,
-                onItalicToggle = viewModel::toggleItalic,
-                onUnderlineToggle = viewModel::toggleUnderline,
-                onFontSizeChange = viewModel::updateFontSize,
-                onTextColorChange = viewModel::updateTextColor,
-                onTextAlignChange = viewModel::updateTextAlign
+            RichTextToolbar(
+                onStyleToggle = { style ->
+                    viewModel.onEvent(AddEditNoteEvent.ToggleStyle(style))
+                },
+                activeStyles = activeStyles
             )
         },
         floatingActionButton = {
@@ -317,16 +297,14 @@ fun AddEditNoteScreen(
                     )
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                TransparentHintTextField(
+                RichTextField(
                     text = contentState.text,
-                    hint = contentState.hint?.let { stringResource(it) } ?: "",
-                    onValueChange = {
-                        viewModel.onEvent(AddEditNoteEvent.EnteredContent(it))
-                    },
-                    onFocusChange = {
-                        viewModel.onEvent(AddEditNoteEvent.ChangeContentFocus(it))
-                    },
+                    hint = contentState.hint,
                     isHintVisible = contentState.isHintVisible,
+                    styles = uiState.styles,
+                    onValueChange = { viewModel.onEvent(AddEditNoteEvent.EnteredContent(it)) },
+                    onFocusChange = { viewModel.onEvent(AddEditNoteEvent.ChangeContentFocus(it)) },
+                    onSelectionChange = { viewModel.updateSelection(it) },
                     textStyle = TextStyle(
                         fontSize = fontSize.sp,
                         color = Color(textColor),

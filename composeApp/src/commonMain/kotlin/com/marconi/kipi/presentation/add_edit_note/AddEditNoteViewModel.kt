@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.TextRange
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,6 +16,13 @@ import com.marconi.kipi.domain.model.Note
 import com.marconi.kipi.domain.use_case.NoteUseCases
 import com.marconi.kipi.events.CommonEvents
 import com.marconi.kipi.navigation.Navigator
+import com.marconi.kipi.rich_text.styles.Style
+import com.marconi.kipi.rich_text.styles.StyleRange
+import com.marconi.kipi.rich_text.hasStyleInRange
+import com.marconi.kipi.rich_text.optimizeStyles
+import com.marconi.kipi.rich_text.removeStylesInRange
+import com.marconi.kipi.rich_text.serializeStyles
+import com.marconi.kipi.rich_text.deserializeStyles
 import com.marconi.kipi.snackbar_utils.SnackbarController
 import com.marconi.kipi.snackbar_utils.SnackbarEvent
 import com.marconi.kipi.ui.theme.FontTypes
@@ -23,18 +31,6 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kipi.composeapp.generated.resources.Res
 import kipi.composeapp.generated.resources.*
-data class NoteUiState(
-    val title: String = "",
-    val content: String = "",
-    val backgroundColor: Color = Color.White,
-    val textColor: Color = Color.Black,
-    val fontSize: Int = 16,
-    val isBold: Boolean = false,
-    val isItalic: Boolean = false,
-    val isUnderlined: Boolean = false,
-    val textAlign: TextAlign = TextAlign.Start,
-    val isLoading: Boolean = false
-)
 
 class AddEditNoteViewModel(
     private val noteUseCases: NoteUseCases,
@@ -42,9 +38,6 @@ class AddEditNoteViewModel(
     private val navigator: Navigator,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    var uiState by mutableStateOf(NoteUiState())
-        private set
-
     private val _noteTitle = mutableStateOf(
         NoteTextFieldState(
             hint = Res.string.enter_title
@@ -58,6 +51,9 @@ class AddEditNoteViewModel(
         )
     )
     val noteContent: State<NoteTextFieldState> = _noteContent
+
+    private val _uiState = MutableStateFlow(RichTextUiState())
+    val uiState: StateFlow<RichTextUiState> = _uiState
 
     private val _selectedCustomColor = MutableStateFlow<Color?>(null)
     val selectedCustomColor: StateFlow<Color?> = _selectedCustomColor
@@ -86,8 +82,11 @@ class AddEditNoteViewModel(
     private val _colorExpanded = MutableStateFlow(false)
     val colorExpanded: StateFlow<Boolean> = _colorExpanded
 
-    private val _eventFlow = MutableSharedFlow<UiEvent>()
-    val eventFlow: SharedFlow<UiEvent> = _eventFlow.asSharedFlow()
+    private val _hasSelection = MutableStateFlow(false)
+    val hasSelection: StateFlow<Boolean> = _hasSelection
+
+    private val _activeStyles = MutableStateFlow<Set<Style>>(emptySet())
+    val activeStyles: StateFlow<Set<Style>> = _activeStyles
 
     private var currentNoteId: Int? = null
 
@@ -114,47 +113,16 @@ class AddEditNoteViewModel(
                             )
                         )
                         onEvent(AddEditNoteEvent.ChangeTextColor(note.textColor))
+                        note.richTextStyles?.let { stylesString ->
+                            _uiState.value = _uiState.value.copy(
+                                styles = deserializeStyles(stylesString)
+                            )
+                        }
                     }
                 }
             }
         }
         setDefaultNoteColors()
-    }
-
-    fun updateTitle(title: String) {
-        uiState = uiState.copy(title = title)
-    }
-
-    fun updateContent(content: String) {
-        uiState = uiState.copy(content = content)
-    }
-
-    fun updateBackgroundColor(color: Color) {
-        uiState = uiState.copy(backgroundColor = color)
-    }
-
-    fun updateTextColor(color: Color) {
-        uiState = uiState.copy(textColor = color)
-    }
-
-    fun updateFontSize(size: Int) {
-        uiState = uiState.copy(fontSize = size)
-    }
-
-    fun toggleBold() {
-        uiState = uiState.copy(isBold = !uiState.isBold)
-    }
-
-    fun toggleItalic() {
-        uiState = uiState.copy(isItalic = !uiState.isItalic)
-    }
-
-    fun toggleUnderline() {
-        uiState = uiState.copy(isUnderlined = !uiState.isUnderlined)
-    }
-
-    fun updateTextAlign(align: TextAlign) {
-        uiState = uiState.copy(textAlign = align)
     }
 
     fun onEvent(event: AddEditNoteEvent) {
@@ -193,6 +161,20 @@ class AddEditNoteViewModel(
             is AddEditNoteEvent.ChangeFontFamily -> {
                 _fontFamily.value = event.fontFamily
             }
+            is AddEditNoteEvent.ToggleStyle -> {
+                val selection = uiState.value.selection
+                if (selection.start != selection.end) {
+                    toggleStyleInSelection(event.style)
+                } else {
+                    val currentActiveStyles = _activeStyles.value.toMutableSet()
+                    if (currentActiveStyles.contains(event.style)) {
+                        currentActiveStyles.remove(event.style)
+                    } else {
+                        currentActiveStyles.add(event.style)
+                    }
+                    _activeStyles.value = currentActiveStyles
+                }
+            }
             is AddEditNoteEvent.SaveNote -> {
                 viewModelScope.launch {
                     try {
@@ -205,6 +187,7 @@ class AddEditNoteViewModel(
                                 textColor = textColor.value,
                                 fontSize = fontSize.value,
                                 fontStyle = fontFamily.value.value,
+                                richTextStyles = serializeStyles(_uiState.value.styles),
                                 id = currentNoteId
                             )
                         )
@@ -217,8 +200,49 @@ class AddEditNoteViewModel(
         }
     }
 
-    sealed class UiEvent {
-        data object SaveNote: UiEvent()
+    private fun toggleStyleInSelection(style: Style) {
+        val selection = uiState.value.selection
+        if (selection.start == selection.end) return
+
+        val currentStyles = uiState.value.styles.toMutableList()
+
+        val hasStyle = currentStyles.hasStyleInRange(selection.start, selection.end, style)
+
+        if (hasStyle) {
+            val updatedStyles = currentStyles.removeStylesInRange(
+                selection.start,
+                selection.end,
+                style
+            )
+            _uiState.value = uiState.value.copy(styles = updatedStyles.optimizeStyles())
+        } else {
+            currentStyles.add(
+                StyleRange(
+                    start = selection.start,
+                    end = selection.end,
+                    style = style
+                )
+            )
+            _uiState.value = uiState.value.copy(styles = currentStyles.optimizeStyles())
+        }
+    }
+
+    fun updateSelection(selection: TextRange) {
+        _uiState.value = uiState.value.copy(selection = selection)
+        _hasSelection.value = selection.start != selection.end
+
+        if (selection.start != selection.end) {
+            val activeStylesInSelection = uiState.value.styles
+                .filter { style ->
+                    style.start <= selection.start && style.end >= selection.end
+                }
+                .map { it.style }
+                .toSet()
+
+            _activeStyles.value = activeStylesInSelection
+        } else {
+            _activeStyles.value = emptySet()
+        }
     }
 
     private fun setDefaultNoteColors() {
