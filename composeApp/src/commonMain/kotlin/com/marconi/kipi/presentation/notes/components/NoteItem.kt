@@ -22,12 +22,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.marconi.kipi.domain.model.Note
+import com.marconi.kipi.rich_text.deserializeStyles
+import com.marconi.kipi.rich_text.toSpanStyle
 import com.marconi.kipi.ui.theme.FontTypes
 import com.marconi.kipi.ui.theme.getFontFamily
 import kipi.composeapp.generated.resources.Res
@@ -42,6 +46,21 @@ fun NoteItem(
     cutCornerSize: Dp = 30.dp,
     onDeleteClick: () -> Unit
 ) {
+    val styles = note.richTextStyles?.let { stylesString ->
+        deserializeStyles(stylesString)
+    }
+
+    val content = note.content
+    val annotatedText = buildAnnotatedString {
+        append(content)
+        styles?.forEach { styleRange ->
+            if (styleRange.start < content.length && styleRange.end <= content.length) {
+                val spanStyle = styleRange.toSpanStyle()
+                addStyle(spanStyle, styleRange.start, styleRange.end)
+            }
+        }
+
+    }
     Box(
         modifier = modifier
     ) {
@@ -92,11 +111,10 @@ fun NoteItem(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = note.content,
+                text = annotatedText,
                 style = TextStyle(
                     fontSize = note.fontSize.sp,
                     color = Color(note.textColor),
-                    fontWeight = FontWeight.Normal,
                     fontFamily = getFontFamily(fontEnum)
                 ),
                 maxLines = 10,
