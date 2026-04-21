@@ -12,18 +12,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.graphics.Color
-import com.marconi.kipi.rich_text.styles.Style
 import com.marconi.kipi.rich_text.styles.StyleRange
+import com.marconi.kipi.rich_text.toSpanStyle
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -33,7 +27,7 @@ fun RichTextField(
     hint: StringResource?,
     isHintVisible: Boolean = true,
     styles: List<StyleRange> = emptyList(),
-    onValueChange: (String) -> Unit,
+    onValueChange: (String, Int) -> Unit,
     textStyle: TextStyle = TextStyle(),
     singleLine: Boolean = false,
     onFocusChange: (FocusState) -> Unit = {},
@@ -54,8 +48,7 @@ fun RichTextField(
             append(text)
             styles.forEach { styleRange ->
                 if (styleRange.start < text.length && styleRange.end <= text.length) {
-                    val spanStyle = styleRange.toSpanStyle()
-                    addStyle(spanStyle, styleRange.start, styleRange.end)
+                    addStyle(styleRange.toSpanStyle(), styleRange.start, styleRange.end)
                 }
             }
         }
@@ -69,7 +62,7 @@ fun RichTextField(
                 textFieldValue = newValue
 
                 if (newValue.text != text) {
-                    onValueChange(newValue.text)
+                    onValueChange(newValue.text, newValue.selection.start)
                 }
 
                 if (newValue.selection != oldSelection) {
@@ -81,18 +74,12 @@ fun RichTextField(
             cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
             modifier = modifier
                 .fillMaxWidth()
-                .onFocusChanged { focusState ->
-                    onFocusChange(focusState)
-                },
+                .onFocusChanged { focusState -> onFocusChange(focusState) },
             decorationBox = { innerTextField ->
                 Box {
                     if (text.isEmpty() && isHintVisible && hint != null) {
-                        Text(
-                            text = stringResource(hint),
-                            style = textStyle
-                        )
+                        Text(text = stringResource(hint), style = textStyle)
                     }
-
                     innerTextField()
                 }
             }
@@ -102,7 +89,6 @@ fun RichTextField(
     LaunchedEffect(text, styles) {
         if (textFieldValue.text != text) {
             val currentSelection = textFieldValue.selection
-
             val adjustedSelection = when {
                 text.length < currentSelection.start -> TextRange(text.length)
                 text.length < currentSelection.end -> TextRange(currentSelection.start, text.length)
@@ -113,50 +99,16 @@ fun RichTextField(
                 append(text)
                 styles.forEach { styleRange ->
                     if (styleRange.start < text.length && styleRange.end <= text.length) {
-                        val spanStyle = styleRange.toSpanStyle()
-                        addStyle(spanStyle, styleRange.start, styleRange.end)
+                        addStyle(styleRange.toSpanStyle(), styleRange.start, styleRange.end)
                     }
                 }
             }
 
-            textFieldValue = TextFieldValue(
-                annotatedString = newAnnotatedText,
-                selection = adjustedSelection
-            )
+            textFieldValue = TextFieldValue(annotatedString = newAnnotatedText, selection = adjustedSelection)
 
             if (adjustedSelection != currentSelection) {
                 onSelectionChange(adjustedSelection)
             }
         }
-    }
-}
-
-private fun StyleRange.toSpanStyle(): SpanStyle {
-    val decorations = mutableListOf<TextDecoration>()
-
-    val baseStyle = when (style) {
-        Style.BOLD -> SpanStyle(fontWeight = FontWeight.Bold)
-        Style.ITALIC -> SpanStyle(fontStyle = FontStyle.Italic)
-        Style.UNDERLINE -> {
-            decorations.add(TextDecoration.Underline)
-            SpanStyle()
-        }
-
-        Style.STRIKETHROUGH -> {
-            decorations.add(TextDecoration.LineThrough)
-            SpanStyle()
-        }
-    }
-
-    val finalStyle = if (decorations.isNotEmpty()) {
-        baseStyle.copy(textDecoration = TextDecoration.combine(decorations))
-    } else {
-        baseStyle
-    }
-
-    return if (color != null) {
-        finalStyle.copy(color = Color(color))
-    } else {
-        finalStyle
     }
 }

@@ -97,6 +97,8 @@ fun AddEditNoteScreen(
     val noteDefaultColors by viewModel.defaultColors.collectAsState()
     val hasSelection by viewModel.hasSelection.collectAsState()
     val activeStyles by viewModel.activeStyles.collectAsState()
+    val activeSelectionColor by viewModel.activeSelectionColor.collectAsState()
+    val isSelectionColorDialogVisible by viewModel.isSelectionColorDialogVisible.collectAsState()
 
     val noteBackgroundAnimatable = remember {
         Animatable(
@@ -104,6 +106,16 @@ fun AddEditNoteScreen(
         )
     }
     val scope = rememberCoroutineScope()
+
+    if (isSelectionColorDialogVisible) {
+        ColorPickerDialog(
+            onColorChanged = { color ->
+                viewModel.onEvent(AddEditNoteEvent.ApplyColorToSelection(color.toArgb()))
+            },
+            onDismissRequest = viewModel::toggleSelectionColorDialogVisibility,
+            color = Color(activeSelectionColor ?: Color.Black.toArgb())
+        )
+    }
 
     if (isDialogVisible) {
         ColorPickerDialog(
@@ -243,10 +255,10 @@ fun AddEditNoteScreen(
         },
         bottomBar = {
             RichTextToolbar(
-                onStyleToggle = { style ->
-                    viewModel.onEvent(AddEditNoteEvent.ToggleStyle(style))
-                },
-                activeStyles = activeStyles
+                onStyleToggle = { viewModel.onEvent(AddEditNoteEvent.ToggleStyle(it)) },
+                activeStyles = activeStyles,
+                activeColor = activeSelectionColor,
+                onColorPick = viewModel::toggleSelectionColorDialogVisibility
             )
         },
         floatingActionButton = {
@@ -302,7 +314,9 @@ fun AddEditNoteScreen(
                     hint = contentState.hint,
                     isHintVisible = contentState.isHintVisible,
                     styles = uiState.styles,
-                    onValueChange = { viewModel.onEvent(AddEditNoteEvent.EnteredContent(it)) },
+                    onValueChange = { text, cursorPos ->
+                        viewModel.onEvent(AddEditNoteEvent.EnteredContent(text, cursorPos))
+                    },
                     onFocusChange = { viewModel.onEvent(AddEditNoteEvent.ChangeContentFocus(it)) },
                     onSelectionChange = { viewModel.updateSelection(it) },
                     textStyle = TextStyle(
